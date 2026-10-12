@@ -1006,7 +1006,8 @@ button { font-family: inherit; }
 }
 
 @media print {
-  .actions, .share-block, .save-hint, .disclaimer, .theme-toggle, .bg-orbs { display: none; }
+  .actions, .share-block, .save-hint, .disclaimer, .theme-toggle, .bg-orbs,
+  .feedback-fab { display: none; }
 }
 
 /* ===== フィードバックFAB（右下固定・常時表示） ===== */
