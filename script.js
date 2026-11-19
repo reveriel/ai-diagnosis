@@ -389,9 +389,29 @@
 
   var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
 
+
+  /* ─────────────────────────────────────────────
+     招待リンク（?type=xxx）
+     ───────────────────────────────────────────── */
+  function initInviteBanner() {
+    var key = null;
+    try { key = new URLSearchParams(window.location.search).get('type'); } catch (e) { return; }
+    if (!key || !TYPES[key]) return;
+    var intro = document.querySelector('#screen-intro .intro');
+    if (!intro) return;
+    var note = document.createElement('div');
+    note.className = 'invite-note';
+    note.innerHTML = '<span class="invite-label">友だちの診断結果</span>' +
+      '<p class="invite-text">友だちは「<strong>' + TYPES[key].jp + '</strong>」タイプでした。あなたの原型は？</p>';
+    var title = intro.querySelector('.intro-title');
+    intro.insertBefore(note, title || null);
+  }
+
   /* ─────────────────────────────────────────────
      8. Intro → Quiz
      ───────────────────────────────────────────── */
+  initInviteBanner();
+
   el.startBtn.addEventListener('click', function () {
     state.index = 0;
     state.answers = [];
@@ -918,6 +938,12 @@
      14.5 バイラル共有（X / LINE / リンクコピー）
      ───────────────────────────────────────────── */
   var SHARE_URL = 'https://www.reveriel.com/ai-diagnosis/';
+
+  // 共有URLに結果タイプを載せて、受け取った人が「友だちは◯◯タイプ」から入れるようにする
+  function shareUrlWithType() {
+    var r = state.result;
+    return r && r.type && r.type.id ? SHARE_URL + '?type=' + encodeURIComponent(r.type.id) : SHARE_URL;
+  }
   var SHARE_SITE = 'AI仕事タイプ診断';
 
   // 晒し用の短い1行テキスト（結果名 + 誘導）
@@ -932,7 +958,7 @@
     if (!r) return '';
     var params = [
       'text=' + encodeURIComponent(buildShareTextShort()),
-      'url=' + encodeURIComponent(SHARE_URL),
+      'url=' + encodeURIComponent(shareUrlWithType()),
       'hashtags=' + encodeURIComponent(SHARE_SITE + ',' + r.type.jp)
     ];
     return 'https://twitter.com/intent/tweet?' + params.join('&');
@@ -942,7 +968,7 @@
     var text = buildShareTextShort();
     // LINE のメッセージ送信ディープリンク（本文 + URL を一緒に送れる）
     return 'https://line.me/R/msg/text/?' +
-      encodeURIComponent(text + '\n' + SHARE_URL);
+      encodeURIComponent(text + '\n' + shareUrlWithType());
   }
 
   // ユーザー操作起点で新規タブを開く（ポップアップブロック回避のため a 要素を使う）
